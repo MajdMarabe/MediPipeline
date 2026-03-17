@@ -1,0 +1,39 @@
+import { db } from "../index";
+import { pipelines } from "../schema";
+import { eq, and } from "drizzle-orm";
+export async function createPipeline(data) {
+    const [result] = await db
+        .insert(pipelines)
+        .values(data)
+        .returning();
+    return result;
+}
+export async function getPipelinesByUser(userId) {
+    return await db
+        .select()
+        .from(pipelines)
+        .where(eq(pipelines.userId, userId));
+}
+export async function getPipelineById(pipelineId, userId) {
+    const result = await db
+        .select()
+        .from(pipelines)
+        .where(and(eq(pipelines.id, pipelineId), eq(pipelines.userId, userId)))
+        .limit(1);
+    return result.length ? result[0] : null;
+}
+export async function updatePipeline(pipelineId, userId, data) {
+    const [result] = await db
+        .update(pipelines)
+        .set(data)
+        .where(and(eq(pipelines.id, pipelineId), eq(pipelines.userId, userId)))
+        .returning();
+    return result;
+}
+export async function deletePipeline(pipelineId, userId) {
+    const result = await db
+        .delete(pipelines)
+        .where(and(eq(pipelines.id, pipelineId), eq(pipelines.userId, userId)))
+        .returning();
+    return result.length ? result[0] : null;
+}
