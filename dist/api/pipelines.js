@@ -1,6 +1,8 @@
 import { Router } from "express";
-import { createPipeline, getPipelinesByUser, getPipelineById, updatePipeline, deletePipeline, } from "../db/queries/pipelines";
+import { createPipeline, getPipelinesByUser, getPipelineById, updatePipeline, deletePipeline, } from "../db/queries/pipelines.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 const router = Router();
+router.use(authMiddleware(process.env.JWT_SECRET));
 router.post("/", async (req, res) => {
     try {
         const { name, actionType } = req.body;

@@ -29,3 +29,16 @@ export function getBearerToken(req: Request): string {
   if (type !== "Bearer" || !token) throw new Error("Invalid Authorization header format");
   return token;
 }
+export function validateJWT(token: string, secret: string): string {
+  try {
+    const decoded = jwt.verify(token, secret) as JwtPayload;
+
+    if (!decoded.sub) {
+      throw new Error("Invalid token: no subject");
+    }
+
+    return decoded.sub; 
+  } catch {
+    throw new Error("Invalid token");
+  }
+}

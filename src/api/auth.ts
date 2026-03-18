@@ -4,7 +4,7 @@ import { createUser, getUserByEmail, getUserById } from "../db/queries/users.js"
 
 const router = Router();
 
-router.post("/users", async (req, res) => {
+router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
@@ -18,7 +18,7 @@ router.post("/users", async (req, res) => {
   res.status(201).json({ id: newUser.id, email: newUser.email });
 });
 
-router.post("/users/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
 

@@ -1,5 +1,5 @@
-import { db } from "../index";
-import { pipelines } from "../schema";
+import { db } from "../index.js";
+import { pipelines } from "../schema.js";
 import { eq, and } from "drizzle-orm";
 
 export type NewPipeline = typeof pipelines.$inferInsert;
@@ -21,6 +21,19 @@ export async function getPipelinesByUser(userId: string) {
 }
 
 export async function getPipelineById(pipelineId: string, userId: string) {
+    if(userId==""){
+         const result = await db
+    .select()
+    .from(pipelines)
+    .where(
+      and(
+        eq(pipelines.id, pipelineId),
+      )
+    )
+    .limit(1);
+
+  return result.length ? result[0] : null;
+    }
   const result = await db
     .select()
     .from(pipelines)
