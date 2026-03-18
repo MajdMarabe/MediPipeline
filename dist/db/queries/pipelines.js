@@ -1,5 +1,5 @@
-import { db } from "../index";
-import { pipelines } from "../schema";
+import { db } from "../index.js";
+import { pipelines } from "../schema.js";
 import { eq, and } from "drizzle-orm";
 export async function createPipeline(data) {
     const [result] = await db
@@ -15,6 +15,14 @@ export async function getPipelinesByUser(userId) {
         .where(eq(pipelines.userId, userId));
 }
 export async function getPipelineById(pipelineId, userId) {
+    if (userId == "") {
+        const result = await db
+            .select()
+            .from(pipelines)
+            .where(and(eq(pipelines.id, pipelineId)))
+            .limit(1);
+        return result.length ? result[0] : null;
+    }
     const result = await db
         .select()
         .from(pipelines)

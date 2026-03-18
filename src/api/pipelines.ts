@@ -5,10 +5,12 @@ import {
   getPipelineById,
   updatePipeline,
   deletePipeline,
-} from "../db/queries/pipelines";
+} from "../db/queries/pipelines.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
+router.use(authMiddleware(process.env.JWT_SECRET!));
 interface AuthRequest extends Request {
   user?: { id: string };
 }
