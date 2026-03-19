@@ -4,7 +4,7 @@ import{getPipelineById} from "../db/queries/pipelines.js";
 
 const router = express.Router();
 
-router.post("/webhooks/:pipelineId", async (req, res) => {
+router.post("/:pipelineId", async (req, res) => {
   const { pipelineId } = req.params;
   const payload = req.body;
 

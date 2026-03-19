@@ -1,24 +1,26 @@
+import { getSubscribersByPipeline } from "../db/queries/subscribers.js";
 import { getPendingJobs, updateJobStatus } from "../db/queries/jobs.js";
 import { getPipelineById } from "../db/queries/pipelines.js";
+import { medicationReminderHandler } from "../actions/medication_reminder_handler.js";
+import { labResultReceived } from "../actions/labResultReceived.js";
+import { alertHighVitals } from "../actions/alertHighVitals.js";
 
-// الأكشن
 async function processAction(actionType: string, payload: any) {
   switch (actionType) {
-    case "uppercase":
-      return { result: payload.text.toUpperCase() };
+    case "medication_time":
+      return medicationReminderHandler(payload);
 
-    case "addTimestamp":
-      return { ...payload, timestamp: new Date() };
+    case "lab_result_ready":
+      return labResultReceived(payload);
 
-    case "filter":
-      return { filtered: payload.value > 10 };
+    case "vitals_recorded":
+      return alertHighVitals(payload);
 
     default:
       throw new Error("Unknown action");
   }
 }
-
-// worker
+/**    */
 export async function startWorker() {
   console.log("Worker started...");
 
@@ -43,6 +45,15 @@ export async function startWorker() {
         );
 
         console.log("Result:", result);
+const subscribers = await getSubscribersByPipeline(job.pipelineId);
+
+for (const sub of subscribers) {
+  const success = await sendToSubscriber(sub.url, result);
+
+  if (!success) {
+    console.log("Failed:", sub.url);
+  }
+}
 
         await updateJobStatus(job.id, "completed");
 
@@ -53,4 +64,24 @@ export async function startWorker() {
       }
     }
   }, 5000);
+}
+/********** */
+async function sendToSubscriber(url: string, data: any) {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed request");
+    }
+
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
