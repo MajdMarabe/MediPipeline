@@ -1,6 +1,6 @@
-import { db } from "../index.js";
-import { deliveries } from "../schema.js";
-import { eq } from "drizzle-orm";
+import { db } from '../index.js';
+import { deliveries } from '../schema.js';
+import { eq } from 'drizzle-orm';
 
 export async function createDelivery({
   jobId,
@@ -13,7 +13,7 @@ export async function createDelivery({
   status: string;
   attempts: number;
 }) {
-    console.log("Creating delivery log:", { jobId, url, status, attempts });
+  console.log('Creating delivery log:', { jobId, url, status, attempts });
   return db.insert(deliveries).values({
     jobId,
     url,

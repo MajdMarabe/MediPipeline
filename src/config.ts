@@ -1,4 +1,4 @@
-import type { MigrationConfig } from "drizzle-orm/migrator";
+import type { MigrationConfig } from 'drizzle-orm/migrator';
 
 process.loadEnvFile();
 
@@ -12,9 +12,8 @@ function envOrThrow(key: string): string {
 
 type APIConfig = {
   fileserverHits: number;
-    platform: string;
+  platform: string;
   polkaKey: string;
-
 };
 
 type DBConfig = {
@@ -23,21 +22,20 @@ type DBConfig = {
 };
 
 const migrationConfig: MigrationConfig = {
-  migrationsFolder: "./drizzle",
+  migrationsFolder: './drizzle',
 };
 export const config = {
   api: {
     fileserverHits: 0,
-    platform: envOrThrow("PLATFORM")
-    ,polkaKey: envOrThrow("POLKA_KEY")
-
+    platform: envOrThrow('PLATFORM'),
+    polkaKey: envOrThrow('POLKA_KEY'),
   } as APIConfig,
 
   db: {
-    url: envOrThrow("DB_URL"),
+    url: envOrThrow('DB_URL'),
     migrationConfig,
   } as DBConfig,
-   auth: {
-    JWT_SECRET: envOrThrow("JWT_SECRET"),
+  auth: {
+    JWT_SECRET: envOrThrow('JWT_SECRET'),
   },
 };
