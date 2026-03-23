@@ -13,6 +13,7 @@ app.use("/pipelines", pipelineRouter);
 app.use("/webhooks", webhookRouter);
 app.use("/subscribers", subscriberRouter);
 app.use("/jobs", jobRouter);
+app.use(express.static("public"));
 app.get("/", (req, res) => {
     res.send("Pipeline API is running!");
 });

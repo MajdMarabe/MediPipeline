@@ -1,5 +1,5 @@
 import { db } from "../index.js";
-import { jobs, deliveries } from "../schema.js";
+import { jobs, deliveries, pipelines } from "../schema.js";
 import { eq, sql } from "drizzle-orm";
 
 
@@ -52,9 +52,20 @@ export async function getJobById(jobId: string) {
 
 
 export async function getAllJobs() {
-  return db.query.jobs.findMany();
-}
+  return db
+    .select({
+      id: jobs.id,
+      status: jobs.status,
+      attempts: jobs.attempts,
+      payload: jobs.payload,
+      createdAt: jobs.createdAt,
 
+      pipelineName: pipelines.name,
+      actionType: pipelines.actionType,
+    })
+    .from(jobs)
+    .leftJoin(pipelines, eq(jobs.pipelineId, pipelines.id));
+}
 
 
 export async function getJobsByStatus(status: string) {

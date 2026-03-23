@@ -35,7 +35,7 @@ export const jobs = pgTable("jobs", {
   pipelineId: uuid("pipeline_id").notNull().references(() => pipelines.id),
   payload: jsonb("payload").notNull(),
   status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, processing, done, failed
-attempts: integer("attempts").default(0),
+  attempts: integer("attempts").default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
 });
@@ -57,3 +57,22 @@ attempts: integer("attempts").default(0),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+/*
+ docker compose down -v
+
+
+
+docker exec -it medi-db psql -U postgres -d medi1
+ALTER TABLE jobs
+ALTER COLUMN attempts DROP DEFAULT;
+
+ALTER TABLE jobs
+ALTER COLUMN attempts TYPE INTEGER
+USING attempts::integer;
+
+ALTER TABLE jobs
+ALTER COLUMN attempts SET DEFAULT 1;
+
+medi1=# \d jobs
+
+**/
