@@ -1,22 +1,19 @@
-import { db } from "../index.js";
-import { jobs, deliveries, pipelines } from "../schema.js";
-import { eq, sql } from "drizzle-orm";
-
-
+import { db } from '../index.js';
+import { jobs, deliveries, pipelines } from '../schema.js';
+import { eq, sql } from 'drizzle-orm';
 
 export async function createJob(pipelineId: string, payload: any) {
   return db.insert(jobs).values({
     pipelineId,
     payload,
-    status: "pending",
+    status: 'pending',
     attempts: 0,
   });
 }
 
-
 export async function getPendingJobs() {
   return db.query.jobs.findMany({
-    where: (j) => eq(j.status, "pending"),
+    where: (j) => eq(j.status, 'pending'),
   });
 }
 
@@ -40,7 +37,6 @@ export async function incrementAttempts(jobId: string) {
     .where(eq(jobs.id, jobId));
 }
 
-
 export async function getJobById(jobId: string) {
   const job = await db.query.jobs.findFirst({
     where: (j) => eq(j.id, jobId),
@@ -48,8 +44,6 @@ export async function getJobById(jobId: string) {
 
   return job;
 }
-
-
 
 export async function getAllJobs() {
   return db
@@ -67,7 +61,6 @@ export async function getAllJobs() {
     .leftJoin(pipelines, eq(jobs.pipelineId, pipelines.id));
 }
 
-
 export async function getJobsByStatus(status: string) {
   return db.query.jobs.findMany({
     where: (j) => eq(j.status, status),
@@ -80,11 +73,10 @@ export async function getJobDeliveries(jobId: string) {
   });
 }
 
-
 export async function createDeliveryLog(
   jobId: string,
   url: string,
-  status: string
+  status: string,
 ) {
   return db.insert(deliveries).values({
     jobId,
@@ -92,4 +84,3 @@ export async function createDeliveryLog(
     status,
   });
 }
-  

@@ -1,7 +1,6 @@
-
-import { db } from "../index.js";
-import { subscribers } from "../schema.js";
-import { eq } from "drizzle-orm";
+import { db } from '../index.js';
+import { subscribers } from '../schema.js';
+import { eq } from 'drizzle-orm';
 
 export async function getSubscribersByPipeline(pipelineId: string) {
   return db.query.subscribers.findMany({
@@ -15,11 +14,7 @@ export async function getAllSubscribers() {
 export async function deleteSubscriber(subscriberId: string) {
   const result = await db
     .delete(subscribers)
-    .where(
-    
-        eq(subscribers.id, subscriberId),
-      
-    )
+    .where(eq(subscribers.id, subscriberId))
     .returning();
 
   return result.length ? result[0] : null;
