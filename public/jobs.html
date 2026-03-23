@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      border-radius: 12px;
+      transition: 0.2s;
+      padding: 15px;
+      background: white;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #6c4cff;
+      color: white;
+      text-align: left;
+      padding: 12px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:hover {
+      background: #f5f5ff;
+    }
+
+    button {
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #6c4cff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 12px;
+    }
+
+    button:hover {
+      background: #593ae0;
+    }
+
+    /* ✅ Status styling */
+    .status-success {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-failed {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Medi Pipeline</h2>
+  <a href="pipelines.html">Pipelines</a>
+  <a href="jobs.html">Jobs</a>
+  <a href="subscribers.html">Subscribers</a>
+</div>
+
+<div class="main">
+  <h2>Jobs</h2>
+
+  <div class="card">
+    <h3>All Jobs</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Attempts</th>
+          <th>Pipeline</th>
+          <th>Action Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="jobsTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+async function loadJobs() {
+  const res = await fetch("http://localhost:8080/jobs", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  if (!res.ok) {
+    console.error("Failed to load jobs");
+    return;
+  }
+
+  const data = await res.json();
+  const table = document.getElementById("jobsTable");
+  table.innerHTML = "";
+
+  const jobs = Array.isArray(data) ? data : data.data;
+
+  jobs.forEach(job => {
+    table.innerHTML += `
+      <tr>
+        <td>${job.id}</td>
+        <td class="${job.status === "failed" ? "status-failed" : "status-success"}">
+          ${job.status}
+        </td>
+        <td>${job.attempts}</td>
+        <td>${job.pipelineName}</td>
+        <td>${job.actionType}</td>
+
+
+        <td>
+          <button onclick="viewJob('${job.id}')">View</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function viewJob(id) {
+  window.location.href = "job-details.html?id=" + id;
+}
+
+loadJobs();
+</script>
+
+</body>
+</html>

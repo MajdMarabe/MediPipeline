@@ -1,10 +1,10 @@
 import { getSubscribersByPipeline } from "../db/queries/subscribers.js";
-import { getPendingJobs, updateJobStatus } from "../db/queries/jobs.js";
+import { getJobById, getPendingJobs, incrementAttempts, updateJobStatus } from "../db/queries/jobs.js";
 import { getPipelineById } from "../db/queries/pipelines.js";
 import { medicationReminderHandler } from "../actions/medication_reminder_handler.js";
 import { labResultReceived } from "../actions/labResultReceived.js";
 import { alertHighVitals } from "../actions/alertHighVitals.js";
-
+import { createDelivery } from "../db/queries/deliveries.js";
 async function processAction(actionType: string, payload: any) {
   switch (actionType) {
     case "medication_time":
@@ -33,7 +33,7 @@ export async function startWorker() {
 
         await updateJobStatus(job.id, "processing");
 
-        const pipeline = await getPipelineById(job.pipelineId,"");
+        const pipeline = await getPipelineById(job.pipelineId, "");
 
         if (!pipeline) {
           throw new Error("Pipeline not found");
@@ -45,20 +45,56 @@ export async function startWorker() {
         );
 
         console.log("Result:", result);
-const subscribers = await getSubscribersByPipeline(job.pipelineId);
 
-for (const sub of subscribers) {
-  const success = await sendToSubscriber(sub.url, result);
+        const subscribers = await getSubscribersByPipeline(
+          job.pipelineId
+        );
 
-  if (!success) {
-    console.log("Failed:", sub.url);
-  }
-}
+        const MAX_ATTEMPTS = 3;
+        let allSuccess = true;
 
-        await updateJobStatus(job.id, "completed");
+        for (const sub of subscribers) {
+          console.log(`Sending to: ${sub.url}`);
 
+          let success = false;
+          let attempts = 0;
+
+          while (!success && attempts < MAX_ATTEMPTS) {
+            attempts++;
+            incrementAttempts(job.id);
+
+            success = await sendToSubscriber(sub.url, result);
+            let x=   await createDelivery({
+              jobId: job.id,
+              url: sub.url,
+              status: success ? "success" : "failed",
+              attempts,
+           });
+           console.log(x);
+            if (!success) {
+              console.log(
+                `Retry ${attempts} failed for subscriber ${sub.url}`
+              );
+
+              await new Promise((res) => setTimeout(res, 2000));
+            }
+          }
+
+          if (!success) {
+            allSuccess = false;
+            console.error(
+              `Failed after ${MAX_ATTEMPTS} attempts: ${sub.url}`
+            );
+          }
+        }
+
+        if (allSuccess) {
+          await updateJobStatus(job.id, "completed");
+        } else {
+          await updateJobStatus(job.id, "failed");
+        }
       } catch (err) {
-        console.error("Job failed:", job.id);
+        console.error("Job failed:", job.id, err);
 
         await updateJobStatus(job.id, "failed");
       }
