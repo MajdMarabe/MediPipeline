@@ -33,21 +33,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/status/:status', async (req, res) => {
-  try {
-    const { status } = req.params;
-    const jobs = await getJobsByStatus(status);
 
-    res.json(jobs);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch jobs by status' });
-  }
-});
-
-// =======================
-// GET DELIVERY HISTORY FOR A JOB
-// =======================
 router.get('/:id/deliveries', async (req, res) => {
   try {
     const deliveries = await getJobDeliveries(req.params.id);

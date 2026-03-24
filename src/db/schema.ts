@@ -49,7 +49,7 @@ export const jobs = pgTable('jobs', {
     .notNull()
     .references(() => pipelines.id),
   payload: jsonb('payload').notNull(),
-  status: varchar('status', { length: 50 }).notNull().default('pending'), // pending, processing, done, failed
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // pending, processing, completed, failed
   attempts: integer('attempts').default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at')
