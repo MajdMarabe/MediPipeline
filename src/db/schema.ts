@@ -73,22 +73,3 @@ export const deliveries = pgTable('deliveries', {
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
-/*
- docker compose down -v
-
-
-
-docker exec -it medi-db psql -U postgres -d medi1
-ALTER TABLE jobs
-ALTER COLUMN attempts DROP DEFAULT;
-
-ALTER TABLE jobs
-ALTER COLUMN attempts TYPE INTEGER
-USING attempts::integer;
-
-ALTER TABLE jobs
-ALTER COLUMN attempts SET DEFAULT 1;
-
-medi1=# \d jobs
-
-**/
