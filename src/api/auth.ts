@@ -43,18 +43,5 @@ router.post('/login', async (req, res) => {
   const token = makeJWT(user.id, 3600, process.env.JWT_SECRET!);
   res.json({ token });
 });
-/*
-router.get("/me", async (req, res) => {
-  try {
-    const token = getBearerToken(req);
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const user = await getUserById(decoded.sub);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    res.json({ id: user.id, email: user.email });
-  } catch {
-    res.status(401).json({ error: "Invalid token" });
-  }
-});*/
 
 export default router;

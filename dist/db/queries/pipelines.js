@@ -1,21 +1,15 @@
-import { db } from "../index.js";
-import { pipelines } from "../schema.js";
-import { eq, and } from "drizzle-orm";
+import { db } from '../index.js';
+import { pipelines } from '../schema.js';
+import { eq, and } from 'drizzle-orm';
 export async function createPipeline(data) {
-    const [result] = await db
-        .insert(pipelines)
-        .values(data)
-        .returning();
+    const [result] = await db.insert(pipelines).values(data).returning();
     return result;
 }
 export async function getPipelinesByUser(userId) {
-    return await db
-        .select()
-        .from(pipelines)
-        .where(eq(pipelines.userId, userId));
+    return await db.select().from(pipelines).where(eq(pipelines.userId, userId));
 }
 export async function getPipelineById(pipelineId, userId) {
-    if (userId == "") {
+    if (userId == '') {
         const result = await db
             .select()
             .from(pipelines)

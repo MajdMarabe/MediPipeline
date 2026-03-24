@@ -1,42 +1,29 @@
-import { Router } from "express";
-import { hashPassword, checkPasswordHash, makeJWT } from "../utils/authHelpers.js";
-import { createUser, getUserByEmail } from "../db/queries/users.js";
+import { Router } from 'express';
+import { hashPassword, checkPasswordHash, makeJWT, } from '../utils/authHelpers.js';
+import { createUser, getUserByEmail, } from '../db/queries/users.js';
 const router = Router();
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password)
-        return res.status(400).json({ error: "Missing email or password" });
+        return res.status(400).json({ error: 'Missing email or password' });
     const existing = await getUserByEmail(email);
     if (existing)
-        return res.status(409).json({ error: "Email already registered" });
+        return res.status(409).json({ error: 'Email already registered' });
     const hashedPassword = await hashPassword(password);
     const newUser = await createUser({ email, hashedPassword });
     res.status(201).json({ id: newUser.id, email: newUser.email });
 });
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password)
-        return res.status(400).json({ error: "Missing email or password" });
+        return res.status(400).json({ error: 'Missing email or password' });
     const user = await getUserByEmail(email);
     if (!user)
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: 'User not found' });
     const valid = await checkPasswordHash(password, user.hashedPassword);
     if (!valid)
-        return res.status(401).json({ error: "Invalid password" });
+        return res.status(401).json({ error: 'Invalid password' });
     const token = makeJWT(user.id, 3600, process.env.JWT_SECRET);
     res.json({ token });
 });
-/*
-router.get("/me", async (req, res) => {
-  try {
-    const token = getBearerToken(req);
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const user = await getUserById(decoded.sub);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    res.json({ id: user.id, email: user.email });
-  } catch {
-    res.status(401).json({ error: "Invalid token" });
-  }
-});*/
 export default router;
