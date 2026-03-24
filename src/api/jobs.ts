@@ -33,7 +33,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
 router.get('/:id/deliveries', async (req, res) => {
   try {
     const deliveries = await getJobDeliveries(req.params.id);
